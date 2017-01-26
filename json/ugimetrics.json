@@ -1,0 +1,51 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "GetGroupsAvgTime" : {
+          "type" : "float"
+        },
+        "GetGroupsNumOps" : {
+          "type" : "integer"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "LoginFailureAvgTime" : {
+          "type" : "float"
+        },
+        "LoginFailureNumOps" : {
+          "type" : "integer"
+        },
+        "LoginSuccessAvgTime" : {
+          "type" : "float"
+        },
+        "LoginSuccessNumOps" : {
+          "type" : "integer"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "ContinuousSchedulingRunAvgTime" : {
+          "type" : "float"
+        },
+        "ContinuousSchedulingRunIMaxTime" : {
+          "type" : "float"
+        },
+        "ContinuousSchedulingRunIMinTime" : {
+          "type" : "float"
+        },
+        "ContinuousSchedulingRunINumOps" : {
+          "type" : "long"
+        },
+        "ContinuousSchedulingRunMaxTime" : {
+          "type" : "float"
+        },
+        "ContinuousSchedulingRunMinTime" : {
+          "type" : "float"
+        },
+        "ContinuousSchedulingRunNumOps" : {
+          "type" : "long"
+        },
+        "ContinuousSchedulingRunStdevTime" : {
+          "type" : "float"
+        },
+        "FSOpDurations" : {
+          "type" : "string"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "NodeUpdateCallAvgTime" : {
+          "type" : "float"
+        },
+        "NodeUpdateCallIMaxTime" : {
+          "type" : "float"
+        },
+        "NodeUpdateCallIMinTime" : {
+          "type" : "float"
+        },
+        "NodeUpdateCallINumOps" : {
+          "type" : "long"
+        },
+        "NodeUpdateCallMaxTime" : {
+          "type" : "float"
+        },
+        "NodeUpdateCallMinTime" : {
+          "type" : "float"
+        },
+        "NodeUpdateCallNumOps" : {
+          "type" : "long"
+        },
+        "NodeUpdateCallStdevTime" : {
+          "type" : "float"
+        },
+        "PreemptCallAvgTime" : {
+          "type" : "float"
+        },
+        "PreemptCallIMaxTime" : {
+          "type" : "float"
+        },
+        "PreemptCallIMinTime" : {
+          "type" : "float"
+        },
+        "PreemptCallINumOps" : {
+          "type" : "long"
+        },
+        "PreemptCallMaxTime" : {
+          "type" : "float"
+        },
+        "PreemptCallMinTime" : {
+          "type" : "float"
+        },
+        "PreemptCallNumOps" : {
+          "type" : "long"
+        },
+        "PreemptCallStdevTime" : {
+          "type" : "float"
+        },
+        "UpdateCallAvgTime" : {
+          "type" : "float"
+        },
+        "UpdateCallIMaxTime" : {
+          "type" : "string"
+        },
+        "UpdateCallIMinTime" : {
+          "type" : "float"
+        },
+        "UpdateCallINumOps" : {
+          "type" : "long"
+        },
+        "UpdateCallMaxTime" : {
+          "type" : "float"
+        },
+        "UpdateCallMinTime" : {
+          "type" : "float"
+        },
+        "UpdateCallNumOps" : {
+          "type" : "long"
+        },
+        "UpdateCallStdevTime" : {
+          "type" : "float"
+        },
+        "UpdateThreadRunAvgTime" : {
+          "type" : "float"
+        },
+        "UpdateThreadRunIMaxTime" : {
+          "type" : "float"
+        },
+        "UpdateThreadRunIMinTime" : {
+          "type" : "float"
+        },
+        "UpdateThreadRunINumOps" : {
+          "type" : "long"
+        },
+        "UpdateThreadRunMaxTime" : {
+          "type" : "float"
+        },
+        "UpdateThreadRunMinTime" : {
+          "type" : "float"
+        },
+        "UpdateThreadRunNumOps" : {
+          "type" : "long"
+        },
+        "UpdateThreadRunStdevTime" : {
+          "type" : "float"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
+

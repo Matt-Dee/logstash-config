@@ -1,0 +1,16 @@
+health status index                         pri rep docs.count docs.deleted store.size pri.store.size 
+yellow open   clustermetrics                  5   1          0            0       795b           795b 
+yellow open   datanode                        5   1          0            0       795b           795b 
+yellow open   fsnamesystem                    5   1          0            0       795b           795b 
+yellow open   fsopdurations                   5   1          8            0    148.8kb        148.8kb 
+yellow open   jvmmetrics                      5   1          0            0       795b           795b 
+yellow open   metricssystem                   5   1          0            0       795b           795b 
+yellow open   namenode                        5   1          0            0       795b           795b 
+yellow open   nodemanagermetrics              5   1          0            0       795b           795b 
+yellow open   queuemetrics                    5   1          0            0       795b           795b 
+yellow open   retrycache.namenoderetrycache   5   1          0            0       795b           795b 
+yellow open   rpc                             5   1          0            0       795b           795b 
+yellow open   rpcdetailed                     5   1          0            0       795b           795b 
+yellow open   shufflemetrics                  5   1          0            0       795b           795b 
+yellow open   startupprogress                 5   1          0            0       795b           795b 
+yellow open   ugimetrics                      5   1          0            0       795b           795b 

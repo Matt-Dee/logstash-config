@@ -1,0 +1,115 @@
+{
+    "mappings" : {
+      "logs" : {
+        "properties" : {
+          "@timestamp" : {
+            "type" : "date",
+            "format" : "strict_date_optional_time||epoch_millis"
+          },
+          "@version" : {
+            "type" : "string"
+          },
+          "Context" : {
+            "type" : "string"
+          },
+          "GcCount" : {
+            "type" : "long"
+          },
+          "GcCountPS MarkSweep" : {
+            "type" : "long"
+          },
+          "GcCountPS Scavenge" : {
+            "type" : "long"
+          },
+          "GcNumInfoThresholdExceeded" : {
+            "type" : "long"
+          },
+          "GcNumWarnThresholdExceeded" : {
+            "type" : "long"
+          },
+          "GcTimeMillis" : {
+            "type" : "long"
+          },
+          "GcTimeMillisPS MarkSweep" : {
+            "type" : "long"
+          },
+          "GcTimeMillisPS Scavenge" : {
+            "type" : "long"
+          },
+          "GcTotalExtraSleepTime" : {
+            "type" : "long"
+          },
+          "Hostname" : {
+            "type" : "string"
+          },
+          "LogError" : {
+            "type" : "long"
+          },
+          "LogFatal" : {
+            "type" : "long"
+          },
+          "LogInfo" : {
+            "type" : "long"
+          },
+          "LogWarn" : {
+            "type" : "long"
+          },
+          "MemHeapCommittedM" : {
+            "type" : "float"
+          },
+          "MemHeapMaxM" : {
+            "type" : "float"
+          },
+          "MemHeapUsedM" : {
+            "type" : "float"
+          },
+          "MemMaxM" : {
+            "type" : "float"
+          },
+          "MemNonHeapCommittedM" : {
+            "type" : "float"
+          },
+          "MemNonHeapMaxM" : {
+            "type" : "float"
+          },
+          "MemNonHeapUsedM" : {
+            "type" : "float"
+          },
+          "ProcessName" : {
+            "type" : "string"
+          },
+          "ThreadsBlocked" : {
+            "type" : "long"
+          },
+          "ThreadsNew" : {
+            "type" : "long"
+          },
+          "ThreadsRunnable" : {
+            "type" : "long"
+          },
+          "ThreadsTerminated" : {
+            "type" : "long"
+          },
+          "ThreadsTimedWaiting" : {
+            "type" : "long"
+          },
+          "ThreadsWaiting" : {
+            "type" : "long"
+          },
+          "context" : {
+            "type" : "string"
+          },
+          "host" : {
+            "type" : "string"
+          },
+          "metric_type" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "BlockChecksumOpAvgTime" : {
+          "type" : "float"
+        },
+        "BlockChecksumOpNumOps" : {
+          "type" : "long"
+        },
+        "BlockReportsAvgTime" : {
+          "type" : "float"
+        },
+        "BlockReportsNumOps" : {
+          "type" : "long"
+        },
+        "BlockVerificationFailures" : {
+          "type" : "long"
+        },
+        "BlocksCached" : {
+          "type" : "long"
+        },
+        "BlocksGetLocalPathInfo" : {
+          "type" : "long"
+        },
+        "BlocksRead" : {
+          "type" : "long"
+        },
+        "BlocksRemoved" : {
+          "type" : "long"
+        },
+        "BlocksReplicated" : {
+          "type" : "long"
+        },
+        "BlocksUncached" : {
+          "type" : "long"
+        },
+        "BlocksVerified" : {
+          "type" : "long"
+        },
+        "BlocksWritten" : {
+          "type" : "long"
+        },
+        "BytesRead" : {
+          "type" : "long"
+        },
+        "BytesWritten" : {
+          "type" : "long"
+        },
+        "CacheReportsAvgTime" : {
+          "type" : "float"
+        },
+        "CacheReportsNumOps" : {
+          "type" : "long"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "CopyBlockOpAvgTime" : {
+          "type" : "float"
+        },
+        "CopyBlockOpNumOps" : {
+          "type" : "long"
+        },
+        "DatanodeNetworkErrors" : {
+          "type" : "string"
+        },
+        "FlushNanosAvgTime" : {
+          "type" : "float"
+        },
+        "FlushNanosNumOps" : {
+          "type" : "long"
+        },
+        "FsyncCount" : {
+          "type" : "long"
+        },
+        "FsyncNanosAvgTime" : {
+          "type" : "float"
+        },
+        "FsyncNanosNumOps" : {
+          "type" : "long"
+        },
+        "HeartbeatsAvgTime" : {
+          "type" : "float"
+        },
+        "HeartbeatsNumOps" : {
+          "type" : "long"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "IncrementalBlockReportsAvgTime" : {
+          "type" : "float"
+        },
+        "IncrementalBlockReportsNumOps" : {
+          "type" : "long"
+        },
+        "PacketAckRoundTripTimeNanosAvgTime" : {
+          "type" : "float"
+        },
+        "PacketAckRoundTripTimeNanosNumOps" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksDeletedBeforeLazyPersisted" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksEvicted" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksEvictedWithoutRead" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksEvictionWindowMsAvgTime" : {
+          "type" : "float"
+        },
+        "RamDiskBlocksEvictionWindowMsNumOps" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksLazyPersistWindowMsAvgTime" : {
+          "type" : "float"
+        },
+        "RamDiskBlocksLazyPersistWindowMsNumOps" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksLazyPersisted" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksReadHits" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksWrite" : {
+          "type" : "long"
+        },
+        "RamDiskBlocksWriteFallback" : {
+          "type" : "long"
+        },
+        "RamDiskBytesLazyPersisted" : {
+          "type" : "long"
+        },
+        "RamDiskBytesWrite" : {
+          "type" : "long"
+        },
+        "ReadBlockOpAvgTime" : {
+          "type" : "float"
+        },
+        "ReadBlockOpNumOps" : {
+          "type" : "long"
+        },
+        "ReadsFromLocalClient" : {
+          "type" : "long"
+        },
+        "ReadsFromRemoteClient" : {
+          "type" : "long"
+        },
+        "RemoteBytesRead" : {
+          "type" : "long"
+        },
+        "RemoteBytesWritten" : {
+          "type" : "long"
+        },
+        "ReplaceBlockOpAvgTime" : {
+          "type" : "float"
+        },
+        "ReplaceBlockOpNumOps" : {
+          "type" : "long"
+        },
+        "SendDataPacketBlockedOnNetworkNanosAvgTime" : {
+          "type" : "float"
+        },
+        "SendDataPacketBlockedOnNetworkNanosNumOps" : {
+          "type" : "long"
+        },
+        "SendDataPacketTransferNanosAvgTime" : {
+          "type" : "float"
+        },
+        "SendDataPacketTransferNanosNumOps" : {
+          "type" : "long"
+        },
+        "TotalReadTime" : {
+          "type" : "float"
+        },
+        "TotalWriteTime" : {
+          "type" : "float"
+        },
+        "VolumeFailures" : {
+          "type" : "long"
+        },
+        "WriteBlockOpAvgTime" : {
+          "type" : "float"
+        },
+        "WriteBlockOpNumOps" : {
+          "type" : "long"
+        },
+        "WritesFromLocalClient" : {
+          "type" : "long"
+        },
+        "WritesFromRemoteClient" : {
+          "type" : "long"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

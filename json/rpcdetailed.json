@@ -1,0 +1,180 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "AddBlockAvgTime" : {
+          "type" : "float"
+        },
+        "AddBlockNumOps" : {
+          "type" : "long"
+        },
+        "BlockReceivedAndDeletedAvgTime" : {
+          "type" : "float"
+        },
+        "BlockReceivedAndDeletedNumOps" : {
+          "type" : "long"
+        },
+        "BlockReportAvgTime" : {
+          "type" : "float"
+        },
+        "BlockReportNumOps" : {
+          "type" : "long"
+        },
+        "CompleteAvgTime" : {
+          "type" : "float"
+        },
+        "CompleteNumOps" : {
+          "type" : "long"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "CreateAvgTime" : {
+          "type" : "float"
+        },
+        "CreateNumOps" : {
+          "type" : "long"
+        },
+        "DeleteAvgTime" : {
+          "type" : "float"
+        },
+        "DeleteNumOps" : {
+          "type" : "long"
+        },
+        "FsyncAvgTime" : {
+          "type" : "float"
+        },
+        "FsyncNumOps" : {
+          "type" : "long"
+        },
+        "GetBlockLocationsAvgTime" : {
+          "type" : "float"
+        },
+        "GetBlockLocationsNumOps" : {
+          "type" : "long"
+        },
+        "GetEditLogManifestAvgTime" : {
+          "type" : "float"
+        },
+        "GetEditLogManifestNumOps" : {
+          "type" : "long"
+        },
+        "GetFileInfoAvgTime" : {
+          "type" : "float"
+        },
+        "GetFileInfoNumOps" : {
+          "type" : "long"
+        },
+        "GetListingAvgTime" : {
+          "type" : "float"
+        },
+        "GetListingNumOps" : {
+          "type" : "long"
+        },
+        "GetServerDefaultsAvgTime" : {
+          "type" : "float"
+        },
+        "GetServerDefaultsNumOps" : {
+          "type" : "long"
+        },
+        "GetTransactionIdAvgTime" : {
+          "type" : "float"
+        },
+        "GetTransactionIdNumOps" : {
+          "type" : "long"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "MkdirsAvgTime" : {
+          "type" : "float"
+        },
+        "MkdirsNumOps" : {
+          "type" : "long"
+        },
+        "NodeHeartbeatAvgTime" : {
+          "type" : "float"
+        },
+        "NodeHeartbeatNumOps" : {
+          "type" : "long"
+        },
+        "RegisterDatanodeAvgTime" : {
+          "type" : "float"
+        },
+        "RegisterDatanodeNumOps" : {
+          "type" : "long"
+        },
+        "RegisterNodeManagerAvgTime" : {
+          "type" : "float"
+        },
+        "RegisterNodeManagerNumOps" : {
+          "type" : "long"
+        },
+        "RenameAvgTime" : {
+          "type" : "float"
+        },
+        "RenameNumOps" : {
+          "type" : "long"
+        },
+        "RenewLeaseAvgTime" : {
+          "type" : "float"
+        },
+        "RenewLeaseNumOps" : {
+          "type" : "long"
+        },
+        "RollEditLogAvgTime" : {
+          "type" : "float"
+        },
+        "RollEditLogNumOps" : {
+          "type" : "long"
+        },
+        "SendHeartbeatAvgTime" : {
+          "type" : "float"
+        },
+        "SendHeartbeatNumOps" : {
+          "type" : "long"
+        },
+        "SetSafeModeAvgTime" : {
+          "type" : "float"
+        },
+        "SetSafeModeNumOps" : {
+          "type" : "long"
+        },
+        "SetTimesAvgTime" : {
+          "type" : "float"
+        },
+        "SetTimesNumOps" : {
+          "type" : "long"
+        },
+        "VersionRequestAvgTime" : {
+          "type" : "float"
+        },
+        "VersionRequestNumOps" : {
+          "type" : "long"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "port" : {
+          "type" : "long"
+        }
+      }
+    }
+  }
+}

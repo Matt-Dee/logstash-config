@@ -1,0 +1,42 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "CacheCleared" : {
+          "type" : "integer"
+        },
+        "CacheHit" : {
+          "type" : "integer"
+        },
+        "CacheUpdated" : {
+          "type" : "integer"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+           "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

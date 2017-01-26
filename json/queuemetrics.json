@@ -1,0 +1,142 @@
+{
+    "mappings" : {
+      "logs" : {
+        "properties" : {
+          "@timestamp" : {
+            "type" : "date",
+            "format" : "strict_date_optional_time||epoch_millis"
+          },
+          "@version" : {
+            "type" : "string"
+          },
+          "ActiveApplications" : {
+            "type" : "long"
+          },
+          "ActiveUsers" : {
+            "type" : "long"
+          },
+          "AggregateContainersAllocated" : {
+            "type" : "long"
+          },
+          "AggregateContainersReleased" : {
+            "type" : "long"
+          },
+          "AllocatedContainers" : {
+            "type" : "long"
+          },
+          "AllocatedMB" : {
+            "type" : "long"
+          },
+          "AllocatedVCores" : {
+            "type" : "long"
+          },
+          "AppAttemptFirstContainerAllocationDelayAvgTime" : {
+            "type" : "float"
+          },
+          "AppAttemptFirstContainerAllocationDelayNumOps" : {
+            "type" : "long"
+          },
+          "AppsCompleted" : {
+            "type" : "long"
+          },
+          "AppsFailed" : {
+            "type" : "long"
+          },
+          "AppsKilled" : {
+            "type" : "long"
+          },
+          "AppsPending" : {
+            "type" : "long"
+          },
+          "AppsRunning" : {
+            "type" : "long"
+          },
+          "AppsSubmitted" : {
+            "type" : "long"
+          },
+          "AvailableMB" : {
+            "type" : "long"
+          },
+          "AvailableVCores" : {
+            "type" : "long"
+          },
+          "Context" : {
+            "type" : "string"
+          },
+          "FairShareMB" : {
+            "type" : "long"
+          },
+          "FairShareVCores" : {
+            "type" : "long"
+          },
+          "Hostname" : {
+            "type" : "string"
+          },
+          "MaxShareMB" : {
+            "type" : "long"
+          },
+          "MaxShareVCores" : {
+            "type" : "long"
+          },
+          "MinShareMB" : {
+            "type" : "long"
+          },
+          "MinShareVCores" : {
+            "type" : "long"
+          },
+          "PendingContainers" : {
+            "type" : "long"
+          },
+          "PendingMB" : {
+            "type" : "long"
+          },
+          "PendingVCores" : {
+            "type" : "long"
+          },
+          "Queue" : {
+            "type" : "string"
+          },
+          "ReservedContainers" : {
+            "type" : "long"
+          },
+          "ReservedMB" : {
+            "type" : "long"
+          },
+          "ReservedVCores" : {
+            "type" : "long"
+          },
+          "SteadyFairShareMB" : {
+            "type" : "long"
+          },
+          "SteadyFairShareVCores" : {
+            "type" : "long"
+          },
+          "context" : {
+            "type" : "string"
+          },
+          "host" : {
+            "type" : "string"
+          },
+          "metric_type" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "running_0" : {
+            "type" : "long"
+          },
+          "running_1440" : {
+            "type" : "long"
+          },
+          "running_300" : {
+            "type" : "long"
+          },
+          "running_60" : {
+            "type" : "long"
+          }
+        }
+      }
+    }
+  }
+}

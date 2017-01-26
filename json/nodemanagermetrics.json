@@ -1,0 +1,72 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "AllocatedContainers" : {
+          "type" : "long"
+        },
+        "AllocatedGB" : {
+          "type" : "long"
+        },
+        "AllocatedVCores" : {
+          "type" : "long"
+        },
+        "AvailableGB" : {
+          "type" : "long"
+        },
+        "AvailableVCores" : {
+          "type" : "long"
+        },
+        "ContainerLaunchDurationAvgTime" : {
+          "type" : "float"
+        },
+        "ContainerLaunchDurationNumOps" : {
+          "type" : "long"
+        },
+        "ContainersCompleted" : {
+          "type" : "long"
+        },
+        "ContainersFailed" : {
+          "type" : "long"
+        },
+        "ContainersIniting" : {
+          "type" : "long"
+        },
+        "ContainersKilled" : {
+          "type" : "long"
+        },
+        "ContainersLaunched" : {
+          "type" : "long"
+        },
+        "ContainersRunning" : {
+          "type" : "long"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "BlockCapacity" : {
+          "type" : "long"
+        },
+        "BlocksTotal" : {
+          "type" : "long"
+        },
+        "CapacityRemaining" : {
+          "type" : "long"
+        },
+        "CapacityRemainingGB" : {
+          "type" : "float"
+        },
+        "CapacityTotal" : {
+          "type" : "long"
+        },
+        "CapacityTotalGB" : {
+          "type" : "float"
+        },
+        "CapacityUsed" : {
+          "type" : "long"
+        },
+        "CapacityUsedGB" : {
+          "type" : "float"
+        },
+        "CapacityUsedNonDFS" : {
+          "type" : "long"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "CorruptBlocks" : {
+          "type" : "long"
+        },
+        "ExcessBlocks" : {
+          "type" : "long"
+        },
+        "ExpiredHeartbeats" : {
+          "type" : "long"
+        },
+        "FilesTotal" : {
+          "type" : "long"
+        },
+        "HAState" : {
+          "type" : "string"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "LastCheckpointTime" : {
+          "type" : "long"
+        },
+        "LastWrittenTransactionId" : {
+          "type" : "long"
+        },
+        "MillisSinceLastLoadedEdits" : {
+          "type" : "long"
+        },
+        "MissingBlocks" : {
+          "type" : "long"
+        },
+        "MissingReplOneBlocks" : {
+          "type" : "long"
+        },
+        "PendingDataNodeMessageCount" : {
+          "type" : "long"
+        },
+        "PendingDeletionBlocks" : {
+          "type" : "long"
+        },
+        "PendingReplicationBlocks" : {
+          "type" : "long"
+        },
+        "PostponedMisreplicatedBlocks" : {
+          "type" : "long"
+        },
+        "ScheduledReplicationBlocks" : {
+          "type" : "long"
+        },
+        "Snapshots" : {
+          "type" : "long"
+        },
+        "SnapshottableDirectories" : {
+          "type" : "long"
+        },
+        "StaleDataNodes" : {
+          "type" : "long"
+        },
+        "TotalFiles" : {
+          "type" : "long"
+        },
+        "TotalLoad" : {
+          "type" : "long"
+        },
+        "TransactionsSinceLastCheckpoint" : {
+          "type" : "long"
+        },
+        "TransactionsSinceLastLogRoll" : {
+          "type" : "long"
+        },
+        "UnderReplicatedBlocks" : {
+          "type" : "long"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
+

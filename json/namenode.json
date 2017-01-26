@@ -1,0 +1,160 @@
+{
+  "mappings" : {
+    "logs" : {
+      "properties" : {
+        "@timestamp" : {
+          "type" : "date",
+          "format" : "strict_date_optional_time||epoch_millis"
+        },
+        "@version" : {
+          "type" : "string"
+        },
+        "AddBlockOps" : {
+          "type" : "long"
+        },
+        "AllowSnapshotOps" : {
+          "type" : "long"
+        },
+        "BlockReceivedAndDeletedOps" : {
+          "type" : "long"
+        },
+        "BlockReportAvgTime" : {
+          "type" : "float"
+        },
+        "BlockReportNumOps" : {
+          "type" : "long"
+        },
+        "CacheReportAvgTime" : {
+          "type" : "float"
+        },
+        "CacheReportNumOps" : {
+          "type" : "long"
+        },
+        "Context" : {
+          "type" : "string"
+        },
+        "CreateFileOps" : {
+          "type" : "long"
+        },
+        "CreateSnapshotOps" : {
+          "type" : "long"
+        },
+        "CreateSymlinkOps" : {
+          "type" : "long"
+        },
+        "DeleteFileOps" : {
+          "type" : "long"
+        },
+        "DeleteSnapshotOps" : {
+          "type" : "long"
+        },
+        "DisallowSnapshotOps" : {
+          "type" : "long"
+        },
+        "FileInfoOps" : {
+          "type" : "long"
+        },
+        "FilesAppended" : {
+          "type" : "long"
+        },
+        "FilesCreated" : {
+          "type" : "long"
+        },
+        "FilesDeleted" : {
+          "type" : "long"
+        },
+        "FilesInGetListingOps" : {
+          "type" : "long"
+        },
+        "FilesRenamed" : {
+          "type" : "long"
+        },
+        "FsImageLoadTime" : {
+          "type" : "long"
+        },
+        "GetAdditionalDatanodeOps" : {
+          "type" : "long"
+        },
+        "GetBlockLocations" : {
+          "type" : "long"
+        },
+        "GetEditAvgTime" : {
+          "type" : "float"
+        },
+        "GetEditNumOps" : {
+          "type" : "long"
+        },
+        "GetImageAvgTime" : {
+          "type" : "float"
+        },
+        "GetImageNumOps" : {
+          "type" : "long"
+        },
+        "GetLinkTargetOps" : {
+          "type" : "long"
+        },
+        "GetListingOps" : {
+          "type" : "long"
+        },
+        "Hostname" : {
+          "type" : "string"
+        },
+        "ListSnapshottableDirOps" : {
+          "type" : "long"
+        },
+        "ProcessName" : {
+          "type" : "string"
+        },
+        "PutImageAvgTime" : {
+          "type" : "float"
+        },
+        "PutImageNumOps" : {
+          "type" : "long"
+        },
+        "RenameSnapshotOps" : {
+          "type" : "long"
+        },
+        "SafeModeTime" : {
+          "type" : "long"
+        },
+        "SnapshotDiffReportOps" : {
+          "type" : "long"
+        },
+        "StorageBlockReportOps" : {
+          "type" : "long"
+        },
+        "SyncsAvgTime" : {
+          "type" : "float"
+        },
+        "SyncsNumOps" : {
+          "type" : "long"
+        },
+        "TotalFileOps" : {
+          "type" : "long"
+        },
+        "TransactionsAvgTime" : {
+          "type" : "float"
+        },
+        "TransactionsBatchedInSync" : {
+          "type" : "long"
+        },
+        "TransactionsNumOps" : {
+          "type" : "long"
+        },
+        "context" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "metric_type" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
+
