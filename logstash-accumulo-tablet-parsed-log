@@ -1,0 +1,922 @@
+input {
+      file {
+          path => "/var/tmp/logstash/accumulo9.log"
+          type => "accumulo"
+          start_position => "beginning"
+          sincedb_path => "/dev/null"
+      }
+}
+
+filter {
+    ############################# ASSIGNING MAP FILES  ##########################
+    grok {
+        patterns_dir => ["/etc/logstash/patterns"]
+        #match => { "message" => "%{YEAR:year}-%{MONTHNUM2:month}-%{MONTHDAY:day} %{HOUR:hour}:%{MINUTE:minute}:%{SECOND:second},%{NUMBER:millisecond} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Assigning %{NUMBER:mapfilecount} map files to %{NUMBER:tabletcount} tablets at %{HOSTPORT:remotenode}" }
+
+        match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Assigning %{NUMBER:mapfilecount} map files to %{NUMBER:tabletcount} tablets at %{HOSTPORT:remotenode}" }
+        add_tag => [ "matchfound" ]
+        add_field => {
+                "messageaction" => "assigning-map-files"
+                "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+        }
+        remove_field => [ "hour","minute","second","month","monthday","year","messageclasspackage","messageclassname"]
+    }
+
+
+    ############################# BULK IMPORT TIMING STATISTICS ##########################
+    if "matchfound" not in [tags] {
+        multiline {
+                #remove_tag => [ "_grokparsefailure" ]
+
+                pattern => "(^.*DEBUG: Files: \[.+\])|(^.+DEBUG: Examine map files\s+:.+)|(^.+DEBUG: Query accumulo.+)|(^.+DEBUG: Import Map Files\s+:.+)|(^.+DEBUG: Sleep\s+:.+)|(^.+DEBUG: Misc\s+:.+)|(^.+DEBUG: Total\s+:.+)"
+                what => "previous"
+            }
+
+        mutate {
+                gsub => ["message", "\n", " "]
+        }
+
+        mutate {
+                gsub => ["message", "\r", " "]
+        }
+
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+                #match => {"message" => "(?<queue_id>.+BULK IMPORT TIMING STATISTICS.+)"}
+                match => {"message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: BULK IMPORT TIMING STATISTICS (?<misc1>.*DEBUG: Total\s+:\s+)(?<totalbulkimporttime>[0-9]+\.[0-9]{2})(?<misc2>\ssecs)"}
+                add_tag => [ "matchfound" ]
+
+                add_field => {
+                        "messageaction" => "detailing-bulk-import-statistics"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+                remove_field => [ "misc1","misc2","messageclasspackage","messageclassname"]
+        }
+    }
+
+
+    ############################# TABLET HISTORY  ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] TABLET_HIST: (?<misc1>\s+.+\.rf) %{NUMBER:rfilebytes} (?<misc2>.*)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "tablet-history-bytes"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+                remove_field => ["messageclasspackage","messageclassname","misc1","misc2"]
+        }
+
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+
+    ############################# MAJOR COMPACTION INITIATE LOCK ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: MajC initiate lock (?<compactioninitiatelocksecs>[0-9]+\.[0-9]+) secs, wait (?<compactionwaitsecs>[0-9]+\.[0-9]+) secs" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "majc-initiate-lock"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# MAJOR COMPACTION STARTING ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Starting MajC (?<accumulotable>.+) (?<bulkimportfilelist>\[.+] \-\-\>).+" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "majc-starting"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        #If the table has information has more than just the table number (i.e. 45;spitinfo) keep only the numberi
+        if ";" in [accumulotable] {
+                ruby {
+                        code => "event['accumulotable'] = ((event['accumulotable']).split(';')).first"
+                }
+        }
+
+
+        #count the number of files in the file list
+        if "matchfound" in [tags] {
+                if [messageaction] == "majc-starting" {
+                        ruby {
+                                code => "event['bulkimportfilelistcount'] = ((event['bulkimportfilelist']).split(',')).length"
+                        }
+                }
+        }
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# MAJOR COMPACTION FINISH ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: MajC finish lock (?<compactionfinishlocksecs>[0-9]+\.[0-9]+) secs" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "majc-finish-lock"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+
+    ############################# Garbage Collection  ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: gc ParNew=(?<parnewthreads>.+)\(.+\) secs ConcurrentMarkSweep=(?<concurrentmarksweep>.+)\(.+\) secs freemem=(?<freemem>.+)\((?<memorychange>.+)\) totalmem=(?<totalmem>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "parnew-garbage-collection"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# Update Session  ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: UpSess %{HOSTPORT:remotenode} (?<totalupdates>.+) in %{BASE10NUM:updateelapsedtime}s, at=(?<authorizationtimes>\[.+\]) ft=%{BASE10NUM:flushtime}s\(pt=%{BASE10NUM:mutationpreptime}s lt=%{BASE10NUM:writeaheadlogtime}s ct=%{BASE10NUM:committime}s\)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "tserver-update-session"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# Multiscan Session  ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: MultiScanSess %{HOSTPORT:remotenode} (?<totalkeyvalueentries>.+) entries in %{BASE10NUM:sessiontime} secs \(lookup_time:%{BASE10NUM:lookuptime} secs tablets:%{NUMBER:tabletsscanned} ranges:%{NUMBER:ranges}\)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "tserver-multiscan-session"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname","sessiontime"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# Tserver Compactor  ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Compaction (?<tablet>.+) (?<majorcompactionreads>[0-9,]+) read \| (?<majorcompactionwrites>[0-9,]+) written \| (?<majorcompactionrate>[0-9,]+) entries/sec \| .*" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "tserver-majc-stats"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname","sessiontime"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+
+    ############################# Zookeeper Transactions  ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Transactions in progress \{(?<transactionlist>.+)\}" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "zookeeper-transactions"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+                remove_field => ["messageclasspackage","messageclassname","sessiontime"]
+        }
+
+        #count the number of transactions in the transaction list
+        if "matchfound" in [tags] {
+                if [messageaction] == "zookeeper-transactions" {
+                        ruby {
+                                code => "event['transactionlistcount'] = ((event['transactionlist']).split(',')).length"
+                        }
+                }
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+
+    ############################# Lru Block Cache Stats ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Cache Stats: Sizes: Total.+ \(%{NUMBER:usedcachebytes}\), Free=.+ \(%{NUMBER:freecachebytes}\), .+, Counts: Blocks=%{NUMBER:blocks}, .+, Hit=%{NUMBER:hits}, Miss=%{NUMBER:misses}, Evictions=%{NUMBER:evictions}, Evicted=%{NUMBER:evicted}.*" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "lru-block-cache"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname","sessiontime"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+    ############################# Native maps  ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[tserver.NativeMap\] %{LOGLEVEL:loglevel}: %{WORD:allocationstatus} native map .*" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "native-maps"
+                        "messageclass" => "tserver.NativeMap"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# MINOR COMPACTION BEGIN ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Begin minor compaction .*" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "minor-compaction-begin"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# COMPACTION THRESHOLD BEFORE ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: BEFORE compactionThreshold = %{BASE10NUM:compactionthresholdbefore} maxObserved = .*" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "compaction-threshold-before"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# COMPACTION THRESHOLD AFTER ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: AFTER compactionThreshold = %{BASE10NUM:compactionthresholdafter}" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "compaction-threshold-after"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# MINOR COMPACTION FINISH ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}:\s+wrote MinC finish\s+(?<compactionsessionid>[0-9a-zA-Z]+): writeTime:%{NUMBER:writetime}ms" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "minor-compaction-finish"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# BULK IMPORT REQUEST ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Got request to bulk import files to table\((?<accumulotable>.+)\): (?<bulkimportfilelist>\[.+\])" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "bulk-import-request"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+        #count the number of files in the file list
+        if "matchfound" in [tags] {
+                if [messageaction] == "bulk-import-request" {
+                        ruby {
+                                code => "event['bulkimportfilelistcount'] = ((event['bulkimportfilelist']).split(',')).length"
+                        }
+                }
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+
+    ############################# THREAD STUCK ON IO ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}\s*: Thread \"(?<threadname>.+)\" stuck on IO\s+to %{HOSTPORT:remotenode} \(.+\) for at least %{NUMBER:timestuckms} ms" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "thread-stuck-on-io"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# THREAD NO LONGER STUCK ON IO ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}\s*: Thread \"(?<threadname>.+)\" no longer stuck on IO\s+to %{HOSTPORT:remotenode} \(.+\) sawError = %{WORD:errorboolean}" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "thread-not-stuck-on-io"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+    ############################# SCAN FAILED (THRIFTSCANNER) ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Scan failed, (?<scanerror>.+)\((?<accumulotable>.+);.+" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "scan-error"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# NOTSERVINGTABLETEXCEPTION (THRIFTSCANNER) ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Error getting transport to %{HOSTPORT:remotenode} : NotServingTabletException.+\(table:(?<accumulotable>.+), endRow.+" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "not-serving-tablet-exception"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# NEW WRITE AHEAD LOG ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Got new write-ahead log: (?<newwriteaheadlog>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "new-write-ahead-log"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# ERROR SENDING UPDATE (IMPL.WRITER) ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: error sending update to %{HOSTPORT:remotenode}:.+ (?<exception>Connection.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "error-sending-update"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# FOUND MIDPOINT (UTIL.FILE) ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Found midPoint from indexes in\s+%{BASE10NUM:midpointfindtime}.+" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "find-midpoint"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# FOUND FIRST AND LAST KEYS (UTIL.FILE) ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Found first and last keys for %{NUMBER:mapfilecount} map files in\s+%{BASE10NUM:keyfindtime}.+" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "find-first-last-key"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# SHORT CIRCUIT CACHE MESSAGE ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[shortcircuit\.ShortCircuitCache\] %{LOGLEVEL:loglevel}: (?<shortcircuitinfo>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "short-circuit-message"
+                        "messageclass" => "shortcircuit.ShortCircuitCache"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# DOMAIN SOCKET FACTORY MESSAGE ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[shortcircuit\.DomainSocketFactory\] %{LOGLEVEL:loglevel}: (?<shortcircuitinfo>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "short-circuit-message"
+                        "messageclass" => "shortcircuit.ShortCircuitCache"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# DfsClientShmManager MESSAGE ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[shortcircuit\.DfsClientShmManager\] %{LOGLEVEL:loglevel}\s*: (?<shortcircuitinfo>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "short-circuit-message"
+                        "messageclass" => "shortcircuit.DfsClientShmManager"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# ZOOKEEPER INSTANCE ID ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Trying to read instance id from (?<instanceiddirectory>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "reading-instance-id"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# ZOOKEEPER SESSION ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: Connecting to (?<zookeepers>.+) with timeout [0-9]+ with auth" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "new-zookeeper-session"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# OPENING SOCKET CONNECTION ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}\s*: Opening socket connection to server (?<remotenode>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "zookeeper-opening-session"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+    }
+
+
+    ############################# SOCKET CONNECTION ESTABLISHED ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}\s*: Socket connection established, initiating session, client.+, server: (?<remotenode>.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "zookeeper-established-session"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+
+
+    }
+
+
+    ############################# TABLET SERVER RESOURCE MANAGER ##########################
+    if "matchfound" not in [tags] {
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}\s*: Changing tserver\.compaction\.major\.concurrent\.max to %{NUMBER:tservercompactionconcurrentmax}" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "changing-tserver-compaction-major-concurrent-max"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+
+
+    }
+
+   ############################# CONSTRAINT VIOLATION EXCEPTION ##########################
+    if "matchfound" not in [tags] {
+
+        multiline {
+                pattern => "(^.*org\.apache\.thrift\.TException.+)|(^\s+at.+)"
+                what => "previous"
+        }
+
+        mutate {
+                gsub => ["message", "\n", " "]
+        }
+
+        mutate {
+                gsub => ["message", "\r", " "]
+        }
+
+
+        grok {
+                patterns_dir => ["/etc/logstash/patterns"]
+
+                match => { "message" => "%{ACCUMULOLOGFILEDATE:logtimestamp} \[%{WORD:messageclasspackage}\.%{WORD:messageclassname}\] %{LOGLEVEL:loglevel}: (?<exception>Internal error processing.+)" }
+                add_tag => [ "matchfound" ]
+                add_field => {
+                        "messageaction" => "constraint-violation-exception"
+                        "messageclass" => "%{messageclasspackage}.%{messageclassname}"
+                }
+
+                remove_field => ["messageclasspackage","messageclassname"]
+        }
+
+        date {
+                match => [ "logtimestamp", "YYYY-MM-dd HH:mm:ss,sss", "ISO8601" ]
+                target => ["logtimestamp"]
+        }
+
+
+    }
+
+
+
+    if "matchfound" not in [tags] {
+        drop {}
+    }
+}
+
+
+
+output { 
+    elasticsearch {
+        action => "index"
+        hosts => "localhost:9200"
+        index => "accumulo-tablet-parsed-log-%{+YYYYMMdd}"
+#        workers => 1
+    }
+    stdout { }
+}
+
+
+
+
+
